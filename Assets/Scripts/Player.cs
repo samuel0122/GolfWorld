@@ -60,6 +60,7 @@ namespace BoundfoxStudios.MiniGolf._Game.Scripts
     {
       if (Input.GetMouseButtonDown(0))
       {
+        //PlayerCamera.gameObject.SetActive(false);
 
         _lineRenderer.SetPosition(0, transform.position);
         _lineRenderer.enabled = true;
