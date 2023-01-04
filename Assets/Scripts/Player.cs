@@ -4,134 +4,183 @@ using UnityEngine;
 
 namespace BoundfoxStudios.MiniGolf._Game.Scripts
 {
-  [RequireComponent(typeof(Rigidbody))]
-  [RequireComponent(typeof(LineRenderer))]
-  public class Player : MonoBehaviour
-  {
-    public CinemachineVirtualCameraBase PlayerCamera;
-    public Camera MainCamera;
-    public TrackManager TrackManager;
-    
-    public float MaxForce = 1.5f;
-    public float ForceAcceleration = 1.5f;
-    public Color MinForceColor = Color.green;
-    public Color MaxForceColor = Color.red;
-    
-    private Rigidbody _rigidbody;
-    private LineRenderer _lineRenderer;
-    private float _currentForce;
-    private float _pingPongTime;
-    private bool _canShoot;
-    private float _timeInHole;
-
-    private void Awake()
+    [RequireComponent(typeof(Rigidbody))]
+    [RequireComponent(typeof(LineRenderer))]
+    public class Player : MonoBehaviour
     {
-      Cursor.lockState = CursorLockMode.Locked;
-    
-      _rigidbody = GetComponent<Rigidbody>();
-      _lineRenderer = GetComponent<LineRenderer>();
+        public CinemachineVirtualCameraBase PlayerCamera;
+        public Camera MainCamera;
+        public TrackManager TrackManager;
 
-      _lineRenderer.enabled = false;
-    }
+        public float MaxForce = 1.5f;
+        public float ForceAcceleration = 1.5f;
+        public Color MinForceColor = Color.green;
+        public Color MaxForceColor = Color.red;
 
-    public void SpawnTo(Vector3 point)
-    {
-      _rigidbody.MovePosition(point);
-    }
+        private float _defaultLowestY = -10f;
+        public float lowestY;
 
-    private void Update()
-    {
-      _canShoot = _rigidbody.velocity.magnitude < 0.1f;
+        private Rigidbody _rigidbody;
+        private LineRenderer _lineRenderer;
+        private float _currentForce;
+        private float _pingPongTime;
+        private bool _canShoot;
+        private float _timeInHole;
 
-      if (!_canShoot)
-      {
-        return;
-      }
-      
-      _rigidbody.velocity = Vector3.zero;
-      _rigidbody.angularVelocity = Vector3.zero;
-      
-      ProcessOnMouseDown();
-      ProcessOnMouseUp();
-      ProcessOnMouseHold();
-    }
+        private Vector3 currentTrackCoord;
+        private Vector3 currentFlagCoord;
 
-    private void ProcessOnMouseDown()
-    {
-      if (Input.GetMouseButtonDown(0))
-      {
-        //PlayerCamera.gameObject.SetActive(false);
+        // To avoid entering the hold function when holding click on move
+        private bool _validClick;
 
-        _lineRenderer.SetPosition(0, transform.position);
-        _lineRenderer.enabled = true;
-
-        _currentForce = 0;
-        _pingPongTime = 0;
-      }
-    }
-
-    private void ProcessOnMouseUp()
-    {
-      if (Input.GetMouseButtonUp(0))
-      {
-        //PlayerCamera.gameObject.SetActive(true);
-        _lineRenderer.enabled = false;
-
-        var cameraForward = MainCamera.transform.forward;
-        var forceDirection = new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
-        
-        _rigidbody.AddForce(forceDirection, ForceMode.Impulse);
-      }
-    }
-
-    private void ProcessOnMouseHold()
-    {
-      if (Input.GetMouseButton(0))
-      {
-        _pingPongTime += Time.deltaTime;
-
-        _currentForce = Mathf.PingPong(ForceAcceleration * _pingPongTime, MaxForce);
-
-        var cameraForward = MainCamera.transform.forward;
-        var playerPosition = transform.position;
-        var newPosition = playerPosition + new Vector3(
-          cameraForward.x,
-          0,
-          cameraForward.z
-        ) * _currentForce;
-        
-        _lineRenderer.SetPosition(1, newPosition);
-        _lineRenderer.startColor = _lineRenderer.endColor = Color.Lerp(MinForceColor, MaxForceColor, _currentForce);
-      }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-      if (other.CompareTag("Hole"))
-      {
-        _timeInHole = 0;
-      }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-      if (other.CompareTag("Hole"))
-      {
-        _timeInHole += Time.deltaTime;
-
-        if (_timeInHole > 1.5f)
+        private void Awake()
         {
-          TrackManager.NextTrack();
-        }
-      }
-    }
+            Cursor.lockState = CursorLockMode.Locked;
 
-    private void OnTriggerExit(Collider other)
-    {
-      if (other.CompareTag("Hole"))
-      {
-        _timeInHole = 0;
-      }
+            _rigidbody = GetComponent<Rigidbody>();
+            _lineRenderer = GetComponent<LineRenderer>();
+
+            _lineRenderer.enabled = false;
+
+            lowestY = _defaultLowestY;
+        }
+
+        public void SpawnTo(Vector3 point)
+        {
+            currentTrackCoord = point;
+            currentFlagCoord = TrackManager.getFlagPosition();
+            _lineRenderer.enabled = false;
+            _rigidbody.MovePosition(point);
+        }
+
+        private double getDistanceWithFlag()
+        {
+            double distanceX = Math.Abs(_rigidbody.position.x - currentFlagCoord.x);
+            double distanceZ = Math.Abs(_rigidbody.position.z - currentFlagCoord.z);
+
+            return (distanceX) + (distanceZ);
+        }
+
+        // Constantly update the player
+        private void Update()
+        {
+            // Looks if the player is out of the track (its going down)
+            if (_rigidbody.position.y < lowestY)
+            {
+                SpawnTo(currentTrackCoord);
+                _rigidbody.velocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+                return;
+            }
+
+            // Calculate player's distance with flag
+            float flagDistance = (float) getDistanceWithFlag();
+            if (flagDistance < 1f)
+            {
+                //Move flag
+                TrackManager.elevateFlagTo((1f- flagDistance)/2);
+            }
+
+            _canShoot = _rigidbody.velocity.magnitude < 0.1f;
+
+            if (!_canShoot)
+            {
+                return;
+            }
+            
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+
+            ProcessOnMouseDown();
+            ProcessOnMouseUp();
+            ProcessOnMouseHold();
+        }
+
+        // Function when clicking down mouse
+        private void ProcessOnMouseDown()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                //PlayerCamera.gameObject.SetActive(false);
+                _validClick = true;
+
+                _lineRenderer.SetPosition(0, transform.position);
+                _lineRenderer.enabled = true;
+
+                _currentForce = 0;
+                _pingPongTime = 0;
+            }
+        }
+
+        // Function when clicking off mouse
+        private void ProcessOnMouseUp()
+        {
+            if (Input.GetMouseButtonUp(0) && _validClick)
+            {
+                //PlayerCamera.gameObject.SetActive(true);
+                _validClick = false;
+                _lineRenderer.enabled = false;
+
+                var cameraForward = MainCamera.transform.forward;
+                var forceDirection = new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
+
+                _rigidbody.AddForce(forceDirection, ForceMode.Impulse);
+            }
+        }
+
+        // Function while holding down mouse click
+        private void ProcessOnMouseHold()
+        {
+            if (Input.GetMouseButton(0) && _validClick)
+            {
+                _pingPongTime += Time.deltaTime;
+
+                _currentForce = Mathf.PingPong(ForceAcceleration * _pingPongTime, MaxForce);
+
+                var cameraForward = MainCamera.transform.forward;
+                var playerPosition = transform.position;
+                var newPosition = playerPosition + new Vector3(
+                  cameraForward.x,
+                  0,
+                  cameraForward.z
+                ) * _currentForce;
+
+                _lineRenderer.SetPosition(1, newPosition);
+                _lineRenderer.startColor = _lineRenderer.endColor = Color.Lerp(MinForceColor, MaxForceColor, _currentForce);
+            }
+        }
+
+
+        public void resetLowestY() { lowestY = _defaultLowestY; }
+
+        //Calculate how long I'm in the hole
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Hole"))
+            {
+                _timeInHole = 0;
+            }
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (other.CompareTag("Hole"))
+            {
+                _timeInHole += Time.deltaTime;
+
+                if (_timeInHole > 1.5f)
+                {
+                    TrackManager.NextTrack();
+                }
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.CompareTag("Hole"))
+            {
+                _timeInHole = 0;
+            }
+        }
     }
-  }
 }
