@@ -47,6 +47,7 @@ namespace BoundfoxStudios.MiniGolf._Game.Scripts
 
         public void SpawnTo(Vector3 point)
         {
+            point.y += 0.5f;
             currentTrackCoord = point;
             currentFlagCoord = TrackManager.getFlagPosition();
             _lineRenderer.enabled = false;
