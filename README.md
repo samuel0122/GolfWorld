@@ -3,7 +3,7 @@
 
 ### 1. Instalar Visual Studio 2019:
   - [ ] Instalar Visual Studio (Community) 2019 con los siguientes paquetes:
-    - [ ] Cargas de trabajo -> Dsarrollo de juego con Unity
+    - [ ] Cargas de trabajo -> Desarrollo de juego con Unity
     - [ ] Componentes individuales -> Extensión de GitHub para VS y GIT para Windows
 
 
