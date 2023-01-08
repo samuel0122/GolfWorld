@@ -43,4 +43,4 @@
   - [ ] Unity va por escenas. Para abrir una escena y poder editarla abrir la carpeta Scenes y doble click sobre una escena.
   - [ ] **__EVITAR SALTOS DE LA PELOTA:__** Edit -> Project Settings...:
     - [ ] Physics -> Default Contact Offset: 0.000001
-    - [ ] Time -> Fixed Timestep: 0.01
+    - [ ] Time -> Fixed Timestep: 0.015
