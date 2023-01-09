@@ -1,10 +1,8 @@
 using UnityEngine;
 
-namespace BoundfoxStudios.MiniGolf._Game.Scripts
+public class Track : MonoBehaviour
 {
-    public class Track : MonoBehaviour
-    {
-        public Transform SpawnPoint;
-        public Flag flag;
-    }
+    public Transform SpawnPoint;
+    public Flag flag;
 }
+
