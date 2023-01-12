@@ -34,6 +34,7 @@ public class Player : MonoBehaviour
     // To avoid entering the hold function when holding click on move
     private bool _validClick;
 
+    // TODO: refactorizar un poco e implementar función de detener la bola con click derecho
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
