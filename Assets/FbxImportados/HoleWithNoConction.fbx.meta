@@ -1,14 +1,14 @@
 fileFormatVersion: 2
-guid: 89409636fd928e94185e8c0ba06d68f1
+guid: 1789012185b480f45b30f71cfdde3d65
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
   externalObjects:
   - first:
-      type: UnityEngine:Material
+      type: UnityEngine:Texture2D
       assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: df3a8f4abb82f6d41b2ac6ce67a5a29b, type: 2}
+      name: papel-de-color-rojo-y-verde-fondo-abstracto-109245599
+    second: {fileID: 2800000, guid: 4d2b0eb459c02694ba891ddb1b4e0809, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
