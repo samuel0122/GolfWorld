@@ -6,163 +6,111 @@ public abstract class Enemy : MonoBehaviour
 {
     public float MaxSpeed;
     protected float Speed;
+
     public float MaxHealth;
+
     protected Collider[] hitColliders;
-    protected RaycastHit Hit;
+    
 
     protected Health _health;
 
     public float DetectionRange;
 
-    public GameObject Target;
+    protected GameObject _playerTarget;
+    private Player player;
     protected Rigidbody _rigidbody;
     protected BoxCollider _boxCollider;
-    protected float _timeRandomWalking;
 
     protected bool seePlayer;
     protected bool dead;
-    protected float _timeUntilExplosion;
 
-    [SerializeField]
-    protected GameObject explosion;
+    protected Vector3 playerDirection;
+    protected float playerDistance;
+
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         // Obtiene los componentes asignados al objeto
         _rigidbody = GetComponent<Rigidbody>();
         _boxCollider = GetComponent<BoxCollider>();
 
-        _health = new Health(MaxHealth) ;
+        _health = new Health(MaxHealth);
 
         // Asigna la velocidad de movimiento
         Speed = MaxSpeed;
-        seePlayer = true;
+        seePlayer = false;
 
         dead = false;
 
-        _timeRandomWalking = 0f;
-
-        // Evita que rote
-        _rigidbody.freezeRotation = true;
-
+        _playerTarget = GameObject.FindGameObjectsWithTag("Player")[0];
+        player = _playerTarget.gameObject.GetComponent<Player>();
     }
     /**/
 
-    private bool playerIsVisible(Vector3 direction)
+
+    /// <summary>
+    /// Recieves the player's hit, lowering the life points.
+    /// </summary>
+    /// <returns> True if enemy is dead </returns>
+    protected bool recieveDamageFromPlayer()
     {
-        // Traza una recta hacia el player
-        if (Physics.Raycast(transform.position, direction, out Hit, DetectionRange))
-            // Si esa recta no colisiona con el player, el player ya no está a la vista
-            if (Hit.collider.tag == "Player")
-                return true;
+        // Gets player script
+        //Player player = collision.gameObject.GetComponent<Player>();
+
+        // Gets player's speed
+        //float playerDmg = player.GetComponent<Rigidbody>().velocity.magnitude;
+
+        float playerDmg = player.getHitDamage();
+        Debug.Log("Player speed: " + player.GetComponent<Rigidbody>().velocity.magnitude);
+        Debug.Log("Player dmg: " + playerDmg);
+
+        if (_health.takeDamage(playerDmg) == false)
+            // Its dead
+            dead = true;
+
+        return dead;
+    }
+
+
+    /// <summary>
+    /// Looks for if player is between detection range and checks that there's no obstacles between.
+    /// <para> Updates playerDistance and playerDirection variables from Enemy class. </para>
+    /// </summary>
+    /// <returns>True if the player is directly visible.</returns>
+    protected bool isPlayerVisible()
+    { 
+        RaycastHit playerHit;
+        
+        Vector3 Heading = (_playerTarget.transform.position - _rigidbody.transform.position);
+        playerDistance = Heading.magnitude;
+        playerDirection = Heading / playerDistance;
+
+        if (playerDistance < DetectionRange)
+
+            // Traza una recta hacia el player
+            if (Physics.Raycast(transform.position, playerDirection, out playerHit, DetectionRange))
+                // Si esa recta no colisiona con el player, el player ya no está a la vista
+                if (playerHit.collider.tag == "Player")
+                    return true;
 
         return false;
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
 
-        // Si está muerto, cuenta atrás para explotar
-        if (dead)
-        {
-            _timeUntilExplosion -= Time.deltaTime;
-
-            if (_timeUntilExplosion < 0f)
-            {
-                Instantiate(explosion, transform.position, Quaternion.identity);
-                Destroy(gameObject);
-            }
-            return;
-        }
-
-        // Busca el player
-        var Heading = (Target.transform.position - _rigidbody.transform.position);
-        var Distance = Heading.magnitude;
-        var Direction = Heading / Distance;
-
-        if (Distance < 4 && playerIsVisible(Direction))
-        {
-            // Si tiene al player a la vista, huye
-            _timeRandomWalking = 0f;
-
-            Vector3 Move = new Vector3(-Direction.x * Speed, _rigidbody.velocity.y, -Direction.z * Speed);
-            _rigidbody.velocity = Move;
-            //transform.forward = Move;
-        }
-        else
-        {
-            // Cuenta cuanto tiempo lleva caminando en una dirección aleatoria
-            _timeRandomWalking -= Time.deltaTime;
-
-            // Si termina el contador, cambia de dirección
-            if (_timeRandomWalking < 0f)
-            {
-                float speedX = Random.Range(0.2f, 0.35f) * Random.Range(0, 2) * 2 - 1;
-                float speedZ = Random.Range(0.2f, 0.35f) * Random.Range(0, 2) * 2 - 1;
-
-                _rigidbody.velocity = new Vector3(speedX, _rigidbody.velocity.y, speedZ);
-
-                _timeRandomWalking = 3f;
-            }
-        }
+        
     }
     /**/
 
     
 
-    public abstract void onHitActuation(Collision collision);
-
-    void OnCollisionEnter(Collision collision)
+    protected virtual void OnCollisionEnter(Collision collision)
     {
         if (dead) return;
 
-        onHitActuation(collision);
     }
 
-    /*
-    // Update is called once per frame
-    void Update()
-    {
-        // detect if player in range
-
-        if (!seePlayer)
-        {
-            hitColliders = Physics.OverlapSphere(_rigidbody.transform.position, DetectionRange);
-            foreach(var collider in hitColliders)
-            {
-                if(collider.tag == "Player")
-                {
-                    Target = collider.gameObject;
-                    seePlayer = true;
-                }
-            }
-        }
-        else
-        {
-            var Heading = (Target.transform.position - _rigidbody.transform.position);
-            var Distance = Heading.magnitude;
-            var Direction = Heading / Distance;
-
-            // Traza una recta hacia el enemigo
-            if (Physics.Raycast(transform.position, Direction, out Hit, SightRange))
-            {
-                // Si esa recta no colisiona con el player, el player ya no está a la vista
-                if(Hit.collider.tag != "Player")
-                {
-                    seePlayer = false;
-                } 
-                else
-                {
-                    // Si tiene al player a la vista, huye
-                    
-
-                    Vector3 Move = new Vector3(-Direction.x * Speed, 0, -Direction.z * Speed);
-                    _rigidbody.velocity = Move;
-                    transform.forward = Move;
-                }
-            }
-        }
-    }*/
 }
