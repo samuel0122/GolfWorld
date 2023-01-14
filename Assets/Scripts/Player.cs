@@ -4,31 +4,38 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(LineRenderer))]
+
 public class Player : MonoBehaviour
 {
-    public CinemachineVirtualCameraBase PlayerCamera;
-    public Camera MainCamera;
-    public TrackManager TrackManager;
+    // Public variables
+    public Camera mainCamera;
+    public LevelManager levelManager;
 
-    public float MaxDamage= 5f;
-    public float MaxForce = 1.5f;
-    public float ForceAcceleration = 1.5f;
+    public float maxDamage= 5f;
+
     public Color MinForceColor = Color.green;
     public Color MaxForceColor = Color.red;
 
-    private float _defaultLowestY = -10f;
-    public float lowestY;
 
+    // Player's objects
     private Rigidbody _rigidbody;
     private LineRenderer _lineRenderer;
+    
+    // Player's variables
     private float _currentForce;
     private float _pingPongTime;
-    private bool _canShoot;
-    private float _timeInHole;
+    
+    private float _maxForce = 1.5f;
+    private float _forceAcceleration = 1.5f;
 
     private float _maxSpeed = 9f;
+    private float _minSpeed = 0.1f;
 
-    private Vector3 currentTrackCoord;
+    // Level's variables
+    private float _timeInHole;
+    private float _lowestY;
+
+    private Vector3 currentLevelCoord;
     private Vector3 currentFlagCoord;
 
     // To avoid entering the hold function when holding click on move
@@ -43,79 +50,85 @@ public class Player : MonoBehaviour
         _lineRenderer = GetComponent<LineRenderer>();
 
         _lineRenderer.enabled = false;
-
-        lowestY = _defaultLowestY;
-
     }
 
     public void SpawnTo(Vector3 point)
     {
         point.y += 0.5f;
-        currentTrackCoord = point;
-        currentFlagCoord = TrackManager.getFlagPosition();
+        currentLevelCoord = point;
+        currentFlagCoord = levelManager.getFlagPosition();
         _lineRenderer.enabled = false;
 
         _rigidbody.MovePosition(point);
+
+        // Sets the lowest Y the player can go
+        _lowestY = levelManager.getMaxDrop();
     }
 
-    private double getDistanceWithFlag()
+    private float getDistanceWithFlag()
     {
-        double distanceX = Math.Abs(_rigidbody.position.x - currentFlagCoord.x);
-        double distanceZ = Math.Abs(_rigidbody.position.z - currentFlagCoord.z);
+        float distanceX = Math.Abs(_rigidbody.position.x - currentFlagCoord.x);
+        float distanceZ = Math.Abs(_rigidbody.position.z - currentFlagCoord.z);
 
-        return (distanceX) + (distanceZ);
+        return new Vector3(distanceX, 0, distanceZ).magnitude;
     }
 
-    public float getSpeed() {
-        return _rigidbody.velocity.magnitude; 
-    }
+    public float getSpeed() { return _rigidbody.velocity.magnitude; }
 
     // Gets player's dmg hit bassed on its speed
     public float getHitDamage()
     {
-        return (getSpeed() * 1.5f >= _maxSpeed) ? MaxDamage : (((getSpeed() * 1.5f) / _maxSpeed) * MaxDamage);
+        return (getSpeed() * 1.5f >= _maxSpeed) ? maxDamage : (((getSpeed() * 1.5f) / _maxSpeed) * maxDamage);
     }
-
-    public void resetLowestY() { lowestY = _defaultLowestY; }
 
     // Constantly update the player
     private void Update()
     {
 
         // Looks if the player is out of the track (its going down)
-        if (_rigidbody.position.y < lowestY)
+        if (_rigidbody.position.y < _lowestY)
         {
-            SpawnTo(currentTrackCoord);
+            SpawnTo(currentLevelCoord);
             _rigidbody.velocity = Vector3.zero;
             _rigidbody.angularVelocity = Vector3.zero;
             return;
         }
 
         // Calculate player's distance with flag
-        float flagDistance = (float)getDistanceWithFlag();
+        float flagDistance = getDistanceWithFlag();
         if (flagDistance < 1f)
         {
             //Move flag
-            TrackManager.elevateFlagTo((1f - flagDistance) / 2);
+            levelManager.elevateFlagTo((1f - flagDistance) / 2);
         }
 
         // Check if player is moving
-        _canShoot = _rigidbody.velocity.magnitude < 0.1f;
-
-        if (!_canShoot)
+        if (getSpeed() >= _minSpeed)
+        {
+            ProcessRightClick();
             return;
+        }
         
-
+        // If speed is below min, turn it Z and press mouse
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
 
-        ProcessOnMouseDown();
-        ProcessOnMouseUp();
-        ProcessOnMouseHold();
+        ProcessLeftClickDown();
+        ProcessLeftClickOff();
+        ProcessLeftClickHold();
+    }
+
+    private void ProcessRightClick()
+    {
+        if (Input.GetMouseButtonDown(1) && !levelManager.getCurrentLevel().areEnemiesDead())
+        {
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+        }
     }
 
     // Function when clicking down mouse
-    private void ProcessOnMouseDown()
+    private void ProcessLeftClickDown()
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -131,7 +144,7 @@ public class Player : MonoBehaviour
     }
 
     // Function when clicking off mouse
-    private void ProcessOnMouseUp()
+    private void ProcessLeftClickOff()
     {
         if (Input.GetMouseButtonUp(0) && _validClick)
         {
@@ -139,7 +152,7 @@ public class Player : MonoBehaviour
             _validClick = false;
             _lineRenderer.enabled = false;
 
-            var cameraForward = MainCamera.transform.forward;
+            var cameraForward = mainCamera.transform.forward;
             var forceDirection = new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
 
             _rigidbody.AddForce(forceDirection, ForceMode.Impulse);
@@ -148,15 +161,15 @@ public class Player : MonoBehaviour
     }
 
     // Function while holding down mouse click
-    private void ProcessOnMouseHold()
+    private void ProcessLeftClickHold()
     {
         if (Input.GetMouseButton(0) && _validClick)
         {
             _pingPongTime += Time.deltaTime;
 
-            _currentForce = Mathf.PingPong(ForceAcceleration * _pingPongTime, MaxForce);
+            _currentForce = Mathf.PingPong(_forceAcceleration * _pingPongTime, _maxForce);
 
-            var cameraForward = MainCamera.transform.forward;
+            var cameraForward = mainCamera.transform.forward;
             var playerPosition = transform.position;
             var newPosition = playerPosition + new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
 
@@ -184,7 +197,7 @@ public class Player : MonoBehaviour
 
             if (_timeInHole > 1.5f)
             {
-                TrackManager.NextTrack();
+                levelManager.NextLevel();
             }
         }
     }

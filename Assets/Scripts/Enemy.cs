@@ -4,50 +4,58 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    public float MaxSpeed;
-    protected float Speed;
 
-    public float MaxHealth;
+    // Protected variables to modify
+    [SerializeField] protected float maxSpeed = 0.5f;       // Si queremos que esté quieto, dejar a 0
+    [SerializeField] protected float maxHealth = 5f;        // Si queremos que al mínimo golpe se muera, dejar a 0
+    [SerializeField] protected float detectionRange = 3f;   // Si no queremos que vea al player, dejar a 0
 
-    protected Collider[] hitColliders;
-    
+    // Protected objects
+    protected Health p_health;
+    protected Player p_player;
+    protected Rigidbody p_rigidbody;
+    protected MeshCollider p_meshCollider;
 
-    protected Health _health;
+    // Protected variables
+    protected bool p_isDead;
 
-    public float DetectionRange;
+    protected Vector3 p_playerDirection;
+    protected float p_playerDistance;
 
-    protected GameObject _playerTarget;
-    private Player player;
-    protected Rigidbody _rigidbody;
-    protected BoxCollider _boxCollider;
+    // Private "backup" variables
+    private Vector3 _initialPosition;
+    private Quaternion _initialRotation;
 
-    protected bool seePlayer;
-    protected bool dead;
-
-    protected Vector3 playerDirection;
-    protected float playerDistance;
-
+    protected float maxDrop;
 
     // Start is called before the first frame update
     protected virtual void Start()
     {
         // Obtiene los componentes asignados al objeto
-        _rigidbody = GetComponent<Rigidbody>();
-        _boxCollider = GetComponent<BoxCollider>();
+        p_rigidbody = GetComponent<Rigidbody>();
+        p_meshCollider = GetComponent<MeshCollider>();
 
-        _health = new Health(MaxHealth);
+        p_health = new Health(maxHealth);
 
-        // Asigna la velocidad de movimiento
-        Speed = MaxSpeed;
-        seePlayer = false;
 
-        dead = false;
+        p_isDead = false;
 
-        _playerTarget = GameObject.FindGameObjectsWithTag("Player")[0];
-        player = _playerTarget.gameObject.GetComponent<Player>();
+        p_player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
+
+        _initialPosition = transform.position;
+        _initialRotation = transform.rotation;
     }
     /**/
 
+    public void setMaxDrop(float y) { maxDrop = y;  }
+
+    public void respawn()
+    {
+        transform.position = _initialPosition;
+        transform.rotation = _initialRotation;
+        gameObject.SetActive(true);
+        Start();
+    }
 
     /// <summary>
     /// Recieves the player's hit, lowering the life points.
@@ -61,16 +69,19 @@ public abstract class Enemy : MonoBehaviour
         // Gets player's speed
         //float playerDmg = player.GetComponent<Rigidbody>().velocity.magnitude;
 
-        float playerDmg = player.getHitDamage();
-        Debug.Log("Player speed: " + player.GetComponent<Rigidbody>().velocity.magnitude);
+        float playerDmg = p_player.getHitDamage();
+        Debug.Log("Player speed: " + p_player.GetComponent<Rigidbody>().velocity.magnitude);
         Debug.Log("Player dmg: " + playerDmg);
 
-        if (_health.takeDamage(playerDmg) == false)
+        if (p_health.takeDamage(playerDmg) == false)
             // Its dead
-            dead = true;
+            p_isDead = true;
 
-        return dead;
+        return p_isDead;
     }
+
+
+    public bool isDead() { return p_isDead; }
 
 
     /// <summary>
@@ -78,18 +89,18 @@ public abstract class Enemy : MonoBehaviour
     /// <para> Updates playerDistance and playerDirection variables from Enemy class. </para>
     /// </summary>
     /// <returns>True if the player is directly visible.</returns>
-    protected bool isPlayerVisible()
+    private bool isPlayerVisible()
     { 
         RaycastHit playerHit;
         
-        Vector3 Heading = (_playerTarget.transform.position - _rigidbody.transform.position);
-        playerDistance = Heading.magnitude;
-        playerDirection = Heading / playerDistance;
+        Vector3 Heading = (p_player.transform.position - p_rigidbody.transform.position);
+        p_playerDistance = Heading.magnitude;
+        p_playerDirection = Heading / p_playerDistance;
 
-        if (playerDistance < DetectionRange)
+        if (p_playerDistance < detectionRange)
 
             // Traza una recta hacia el player
-            if (Physics.Raycast(transform.position, playerDirection, out playerHit, DetectionRange))
+            if (Physics.Raycast(transform.position, p_playerDirection, out playerHit, detectionRange))
                 // Si esa recta no colisiona con el player, el player ya no está a la vista
                 if (playerHit.collider.tag == "Player")
                     return true;
@@ -97,19 +108,41 @@ public abstract class Enemy : MonoBehaviour
         return false;
     }
 
-    // Update is called once per frame
-    protected virtual void Update()
+    /** Qué ocurre si está muerto. Si no ocurre nada, dejar la función vacía. */
+    protected virtual void behaviourOnDead()
     {
 
-        
     }
-    /**/
 
-    
+    /** Cómo actua cuando se encuentra al player. Si no ocurre nada, dejar la función vacía. */
+    protected virtual void behaviourWhenPlayerVisible()
+    {
+
+    }
+
+    protected virtual void behaviourWhenPlayerNotVisible()
+    {
+
+    }
+
+
+    private void Update()
+    {
+        /** Si el enemigo se ha caído, se muere. */
+        if (transform.position.y < maxDrop)
+            gameObject.SetActive(false);
+
+        /** Si el enemigo sigue en la pista, llama a una función de actuación. */
+        if (p_isDead) behaviourOnDead();
+        else if (isPlayerVisible()) behaviourWhenPlayerVisible();
+        else behaviourWhenPlayerNotVisible();
+
+    }
+
 
     protected virtual void OnCollisionEnter(Collision collision)
     {
-        if (dead) return;
+        if (p_isDead) return;
 
     }
 

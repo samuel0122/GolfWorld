@@ -13,20 +13,108 @@ public class SlimeBehaviour : Enemy
     protected float _counterUntilExplosion;
     protected float _timeRandomWalking;
 
+    // Slime Mesh
+    private float Intensity = 1f;
+    private float Mass = 1f;
+    private float stiffness = 0.5f;
+    private float damping = 0.8f;
+
+    private Mesh OriginalMesh, MeshClone;
+    private new MeshRenderer renderer;
+    private JellyVertex[] jv;
+    private Vector3[] vertexArray;
+
+
     // Overriding function
     protected override void Start()
     {
         base.Start();
         _timeRandomWalking = 0f;
-        
-        // Evita que rote (buscar alternativa para permitir que rote de izquierda a derecha)
-        _rigidbody.freezeRotation = true;
 
+        Debug.Log("STARTING SLIME");
+
+
+        // Evita que rote (buscar alternativa para permitir que rote de izquierda a derecha)
+        //_rigidbody.freezeRotation = true;
+
+        // Slime Mesh
+        OriginalMesh = GetComponent<MeshFilter>().sharedMesh;
+        MeshClone = Instantiate(OriginalMesh);
+        GetComponent<MeshFilter>().sharedMesh = MeshClone;
+        renderer = GetComponent<MeshRenderer>();
+        jv = new JellyVertex[MeshClone.vertices.Length];
+
+        for (int iteration = 0; iteration < MeshClone.vertices.Length; iteration++)
+            jv[iteration] = new JellyVertex(iteration, transform.TransformPoint(MeshClone.vertices[iteration]));
     }
+
+    // Update is called once per frame
+    void FixedUpdate()
+    {
+        vertexArray = OriginalMesh.vertices;
+        for (int iteration = 0; iteration < jv.Length; iteration++)
+        {
+            Vector3 target = transform.TransformPoint(vertexArray[jv[iteration].ID]);
+            float intensity = (1 - (renderer.bounds.max.y - target.y) / renderer.bounds.size.y) * Intensity;
+            jv[iteration].Shake(target, Mass, stiffness, damping);
+            target = transform.InverseTransformPoint(jv[iteration].Position);
+            vertexArray[jv[iteration].ID] = Vector3.Lerp(vertexArray[jv[iteration].ID], target, intensity);
+
+        }
+        MeshClone.SetVertices(vertexArray);
+    }
+
+
+    protected override void behaviourOnDead()
+    {
+        /** Qué ocurre si está muerto */
+
+        _counterUntilExplosion += Time.deltaTime;
+
+        if (_counterUntilExplosion < timeUntilExplosion)
+        {
+            Instantiate(explosion, transform.position, Quaternion.identity);
+            //Destroy(gameObject);
+            gameObject.SetActive(false);
+        }
+    }
+
+    protected override void behaviourWhenPlayerVisible()
+    {
+        /** Cómo actua cuando se encuentra al player */
+
+        // Si tiene al player a la vista, huye
+        _timeRandomWalking = 0.5f;
+
+        Vector3 Move = new Vector3(-p_playerDirection.x * maxSpeed, p_rigidbody.velocity.y, -p_playerDirection.z * maxSpeed);
+        p_rigidbody.velocity = Move;
+        //transform.forward = Move;
+    }
+
+    protected override void behaviourWhenPlayerNotVisible()
+    {
+        /** Cómo actua cuando se está por libre */
+
+        // Cuenta cuanto tiempo lleva caminando en una dirección aleatoria
+        _timeRandomWalking -= Time.deltaTime;
+
+        // Si termina el contador, cambia de dirección
+        if (_timeRandomWalking <= 0f)
+        {
+            float speedX = Random.Range(0.2f, 0.35f) * (Random.Range(0, 2) * 2 - 1);
+            float speedZ = Random.Range(0.2f, 0.35f) * (Random.Range(0, 2) * 2 - 1);
+
+            p_rigidbody.velocity = new Vector3(speedX, p_rigidbody.velocity.y, speedZ);
+            //_rigidbody.velocity = new Vector3(0, _rigidbody.velocity.y, Random.Range(0.2f, 0.35f) * (Random.Range(0, 2) * 2 - 1));
+
+            _timeRandomWalking = 3f;
+        }
+    }
+
 
     protected override void OnCollisionEnter(Collision collision)
     {
-        if (dead) return;
+        if (p_isDead) return;
 
         if (collision.collider.tag == "Player")
         {
@@ -34,7 +122,7 @@ public class SlimeBehaviour : Enemy
 
             // Si fue golpeado por el player, recibe el daño sin condiciones
             if (recieveDamageFromPlayer())
-                _boxCollider.material.bounciness = 0;
+                p_meshCollider.material.bounciness = 0;
 
         }
         else if (collision.collider.tag == "Suelo")
@@ -42,9 +130,9 @@ public class SlimeBehaviour : Enemy
             /** Cómo actua cuando toca el suelo*/
 
             // Cuando toca el suelo, vuelve a saltar
-            Vector3 speeds = _rigidbody.velocity;
+            Vector3 speeds = p_rigidbody.velocity;
             speeds.y = 1.5f;
-            _rigidbody.velocity = speeds;
+            p_rigidbody.velocity = speeds;
         }
         else
         {
@@ -54,53 +142,31 @@ public class SlimeBehaviour : Enemy
         }
     }
 
-    protected override void Update()
+
+
+    private class JellyVertex
     {
-        // Si está muerto, cuenta atrás para explotar
-        if (dead)
-        {
-            /** Qué ocurre si está muerto */
-            _counterUntilExplosion += Time.deltaTime;
+        public int ID;
+        public Vector3 Position;
+        public Vector3 velocity, Force;
 
-            if (_counterUntilExplosion < timeUntilExplosion)
-            {
-                Instantiate(explosion, transform.position, Quaternion.identity);
-                Destroy(gameObject);
-            }
-            return;
+        public JellyVertex(int _id, Vector3 _pos)
+        {
+            ID = _id;
+            Position = _pos;
         }
 
-        
-        if (isPlayerVisible())
+        public void Shake(Vector3 target, float m, float s, float d)
         {
-            /** Cómo actua cuando se encuentra al player */
-            // Si tiene al player a la vista, huye
-            _timeRandomWalking = 0f;
-
-            Vector3 Move = new Vector3(-playerDirection.x * Speed, _rigidbody.velocity.y, -playerDirection.z * Speed);
-            _rigidbody.velocity = Move;
-            //transform.forward = Move;
-        }
-        else
-        {
-            /** Cómo actua cuando se está por libre */
-
-            // Cuenta cuanto tiempo lleva caminando en una dirección aleatoria
-            _timeRandomWalking -= Time.deltaTime;
-
-            // Si termina el contador, cambia de dirección
-            if (_timeRandomWalking < 0f)
+            Force = (target - Position) * s;
+            velocity = (velocity + Force / m) * d;
+            Position += velocity;
+            if ((velocity + Force + Force / m).magnitude < 0.001f)
             {
-                float speedX = Random.Range(0.2f, 0.35f) * Random.Range(0, 2) * 2 - 1;
-                float speedZ = Random.Range(0.2f, 0.35f) * Random.Range(0, 2) * 2 - 1;
-
-                _rigidbody.velocity = new Vector3(speedX, _rigidbody.velocity.y, speedZ);
-
-                _timeRandomWalking = 3f;
+                Position = target;
             }
         }
     }
-
 
     /*
     // Update is called once per frame
