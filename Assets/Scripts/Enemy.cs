@@ -19,6 +19,7 @@ public abstract class Enemy : MonoBehaviour
     // Protected variables
     protected bool p_isDead;
 
+    protected Vector3 p_playerHeading;
     protected Vector3 p_playerDirection;
     protected float p_playerDistance;
 
@@ -70,8 +71,8 @@ public abstract class Enemy : MonoBehaviour
         //float playerDmg = player.GetComponent<Rigidbody>().velocity.magnitude;
 
         float playerDmg = p_player.getHitDamage();
-        Debug.Log("Player speed: " + p_player.GetComponent<Rigidbody>().velocity.magnitude);
-        Debug.Log("Player dmg: " + playerDmg);
+        //Debug.Log("Player speed: " + p_player.GetComponent<Rigidbody>().velocity.magnitude);
+        //Debug.Log("Player dmg: " + playerDmg);
 
         if (p_health.takeDamage(playerDmg) == false)
             // Its dead
@@ -93,9 +94,9 @@ public abstract class Enemy : MonoBehaviour
     { 
         RaycastHit playerHit;
         
-        Vector3 Heading = (p_player.transform.position - p_rigidbody.transform.position);
-        p_playerDistance = Heading.magnitude;
-        p_playerDirection = Heading / p_playerDistance;
+        p_playerHeading = (p_player.transform.position - p_rigidbody.transform.position);
+        p_playerDistance = p_playerHeading.magnitude;
+        p_playerDirection = p_playerHeading / p_playerDistance;
 
         if (p_playerDistance < detectionRange)
 
@@ -130,7 +131,10 @@ public abstract class Enemy : MonoBehaviour
     {
         /** Si el enemigo se ha caído, se muere. */
         if (transform.position.y < maxDrop)
+        {
+            p_isDead = true;
             gameObject.SetActive(false);
+        }
 
         /** Si el enemigo sigue en la pista, llama a una función de actuación. */
         if (p_isDead) behaviourOnDead();

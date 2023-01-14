@@ -26,7 +26,11 @@ public class LevelManager : MonoBehaviour
 
         // Calculate next track if all enemies are dead
         if (levels[_currentLevel].areEnemiesDead())
+        {
+            Debug.Log("Level compleated");
+            levels[_currentLevel].respawnEnemies();
             _currentLevel = (_currentLevel + 1) % levels.Length;
+        }
         else
             levels[_currentLevel].respawnEnemies();
 

@@ -185,7 +185,9 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("Hole"))
         {
-            _timeInHole = 0;
+            //_timeInHole = 0;
+            levelManager.NextLevel();
+
         }
     }
 
@@ -193,12 +195,29 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("Hole"))
         {
-            _timeInHole += Time.deltaTime;
+            //_timeInHole += Time.deltaTime;
 
             if (_timeInHole > 1.5f)
             {
                 levelManager.NextLevel();
             }
+        }
+    }
+
+    protected void OnCollisionEnter(Collision collision)
+    {
+
+        if (collision.collider.tag == "Player")
+        {
+            /** Cómo actua cuando colisiona con el player */
+
+            Debug.Log("TOCO PLAYER");
+
+        }
+        else if (collision.collider.tag == "Wall")
+        {
+            /** Cómo actua cuando toca el suelo*/
+            Debug.Log("TOCO Pared");
         }
     }
 

@@ -31,7 +31,6 @@ public class SlimeBehaviour : Enemy
         base.Start();
         _timeRandomWalking = 0f;
 
-        Debug.Log("STARTING SLIME");
 
 
         // Evita que rote (buscar alternativa para permitir que rote de izquierda a derecha)
@@ -82,6 +81,8 @@ public class SlimeBehaviour : Enemy
     protected override void behaviourWhenPlayerVisible()
     {
         /** Cómo actua cuando se encuentra al player */
+        transform.LookAt(p_player.transform.position);
+        //transform.rotation = Quaternion.LookRotation(- transform.position + p_player.transform.position);
 
         // Si tiene al player a la vista, huye
         _timeRandomWalking = 0.5f;
@@ -94,6 +95,8 @@ public class SlimeBehaviour : Enemy
     protected override void behaviourWhenPlayerNotVisible()
     {
         /** Cómo actua cuando se está por libre */
+        transform.LookAt(2* transform.position  - p_player.transform.position);
+        //transform.rotation = Quaternion.LookRotation(transform.position - p_player.transform.position);
 
         // Cuenta cuanto tiempo lleva caminando en una dirección aleatoria
         _timeRandomWalking -= Time.deltaTime;
@@ -125,20 +128,24 @@ public class SlimeBehaviour : Enemy
                 p_meshCollider.material.bounciness = 0;
 
         }
-        else if (collision.collider.tag == "Suelo")
+        else if (collision.collider.tag == "Wall")
         {
+            /** Cómo actua cuando toca la pared */
+            // Si colisiona con algo y no es el suelo ni el player, entonces será la pared. 
+            // Reinicia el contador de rangomWalking para cambiar su dirección aleatoria.
+            _timeRandomWalking = 0f;
+
+        }
+        else if (collision.collider.tag == "Floor" || collision.collider.tag == "Hole")
+        {
+            // Si colisiona con algo y no es el suelo ni el player, entonces será la pared. 
+            // Reinicia el contador de rangomWalking para cambiar su dirección aleatoria.
             /** Cómo actua cuando toca el suelo*/
 
             // Cuando toca el suelo, vuelve a saltar
             Vector3 speeds = p_rigidbody.velocity;
             speeds.y = 1.5f;
             p_rigidbody.velocity = speeds;
-        }
-        else
-        {
-            // Si colisiona con algo y no es el suelo ni el player, entonces será la pared. 
-            // Reinicia el contador de rangomWalking para cambiar su dirección aleatoria.
-            _timeRandomWalking = 0f;
         }
     }
 
