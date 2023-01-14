@@ -32,7 +32,8 @@ public class Player : MonoBehaviour
     private float _minSpeed = 0.1f;
 
     // Level's variables
-    private float _timeInHole;
+    private float _timeAfterHole;
+    private bool _holePassed;
     private float _lowestY;
 
     private Vector3 currentLevelCoord;
@@ -63,6 +64,8 @@ public class Player : MonoBehaviour
 
         // Sets the lowest Y the player can go
         _lowestY = levelManager.getMaxDrop();
+
+        _holePassed = false;
     }
 
     private float getDistanceWithFlag()
@@ -84,6 +87,16 @@ public class Player : MonoBehaviour
     // Constantly update the player
     private void Update()
     {
+        // Si se ha terminado, va cayendo hasta que diga next level
+        if (_holePassed)
+        {
+            _timeAfterHole += Time.deltaTime;
+            if (_timeAfterHole > 1.5f)
+                levelManager.NextLevel();
+            
+            return;
+        }
+
 
         // Looks if the player is out of the track (its going down)
         if (_rigidbody.position.y < _lowestY)
@@ -185,8 +198,9 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("Hole"))
         {
-            //_timeInHole = 0;
-            levelManager.NextLevel();
+            _timeAfterHole = 0;
+            _holePassed = true;
+            //levelManager.NextLevel();
 
         }
     }
@@ -195,9 +209,9 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("Hole"))
         {
-            //_timeInHole += Time.deltaTime;
+            _timeAfterHole += Time.deltaTime;
 
-            if (_timeInHole > 1.5f)
+            if (_timeAfterHole > 1.5f)
             {
                 levelManager.NextLevel();
             }
@@ -225,7 +239,7 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("Hole"))
         {
-            _timeInHole = 0;
+            _timeAfterHole = 0;
         }
     }
 }
