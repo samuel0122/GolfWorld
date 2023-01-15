@@ -7,6 +7,10 @@ public class Level : MonoBehaviour
     public float maximumDropDistance = -10f;
     public Enemy[] enemies;
 
+
+    public float getMaxDrop() { return transform.position.y + maximumDropDistance; }
+
+
     public bool areEnemiesDead()
     {
         // Search if there's an enemy that's not dead
@@ -20,7 +24,10 @@ public class Level : MonoBehaviour
     public void respawnEnemies()
     {
         foreach(Enemy enemy in enemies)
+        {
+            enemy.setMaxDrop(getMaxDrop());
             enemy.respawn();
+        }
     }
 }
 

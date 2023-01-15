@@ -24,14 +24,16 @@ public abstract class Enemy : MonoBehaviour
     protected float p_playerDistance;
 
     // Private "backup" variables
-    private Vector3 _initialPosition;
+    [SerializeField]  private Vector3 _respawnPoint;
+    private bool _respawnPointIsSet = false;
     private Quaternion _initialRotation;
 
     protected float maxDrop;
 
     // Start is called before the first frame update
-    protected virtual void Start()
+    protected virtual void Awake()
     {
+
         // Obtiene los componentes asignados al objeto
         p_rigidbody = GetComponent<Rigidbody>();
         p_meshCollider = GetComponent<MeshCollider>();
@@ -43,8 +45,14 @@ public abstract class Enemy : MonoBehaviour
 
         p_player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
 
-        _initialPosition = transform.position;
-        _initialRotation = transform.rotation;
+        if(!_respawnPointIsSet)
+        {
+            Debug.Log("Setting RESPAWN");
+            _respawnPoint = transform.position;
+            _initialRotation = transform.rotation;
+            _respawnPointIsSet = true;
+        }
+        Debug.Log("Starting at " + _respawnPoint);
     }
     /**/
 
@@ -52,10 +60,11 @@ public abstract class Enemy : MonoBehaviour
 
     public void respawn()
     {
-        transform.position = _initialPosition;
-        transform.rotation = _initialRotation;
+         Debug.Log("RESPAWNING");
+        //transform.position = _respawnPoint;
+        transform.SetPositionAndRotation(_respawnPoint, _initialRotation);// = _initialRotation;
         gameObject.SetActive(true);
-        Start();
+        Awake();
     }
 
     /// <summary>
@@ -132,6 +141,7 @@ public abstract class Enemy : MonoBehaviour
         /** Si el enemigo se ha caído, se muere. */
         if (transform.position.y < maxDrop)
         {
+            Debug.Log("FUERA DE PISTA");
             p_isDead = true;
             gameObject.SetActive(false);
         }

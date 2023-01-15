@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
     // Player's objects
     private Rigidbody _rigidbody;
     private LineRenderer _lineRenderer;
-    
+
     // Player's variables
     private float _currentForce;
     private float _pingPongTime;
@@ -51,7 +51,9 @@ public class Player : MonoBehaviour
         _lineRenderer = GetComponent<LineRenderer>();
 
         _lineRenderer.enabled = false;
+        _lineRenderer.useWorldSpace = true;
     }
+
 
     public void SpawnTo(Vector3 point)
     {
@@ -87,6 +89,8 @@ public class Player : MonoBehaviour
     // Constantly update the player
     private void Update()
     {
+        Debug.Log("Player speed: " + getSpeed());
+
         // Si se ha terminado, va cayendo hasta que diga next level
         if (_holePassed)
         {
@@ -166,10 +170,11 @@ public class Player : MonoBehaviour
             _lineRenderer.enabled = false;
 
             var cameraForward = mainCamera.transform.forward;
-            var forceDirection = new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
+            float normalize = Mathf.Abs(cameraForward.x) + Mathf.Abs(cameraForward.z);
+            var forceDirection = new Vector3(cameraForward.x / normalize, 0, cameraForward.z / normalize) * _maxForce;
 
             _rigidbody.AddForce(forceDirection, ForceMode.Impulse);
-            
+
         }
     }
 
@@ -184,9 +189,13 @@ public class Player : MonoBehaviour
 
             var cameraForward = mainCamera.transform.forward;
             var playerPosition = transform.position;
-            var newPosition = playerPosition + new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
+            var newPosition1 = playerPosition + new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce * 0.94f;
+            var newPosition2 = playerPosition + new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce * 0.95f;
+            var newPosition3 = playerPosition + new Vector3(cameraForward.x, 0, cameraForward.z) * _currentForce;
 
-            _lineRenderer.SetPosition(1, newPosition);
+            _lineRenderer.SetPositions(new Vector3[] { transform.position, newPosition1, newPosition2, newPosition3 });
+            //_lineRenderer.SetPosition(1, newPosition1);
+            //_lineRenderer.SetPosition(2, newPosition2);
             _lineRenderer.startColor = _lineRenderer.endColor = Color.Lerp(MinForceColor, MaxForceColor, _currentForce);
         }
     }
@@ -231,7 +240,7 @@ public class Player : MonoBehaviour
         else if (collision.collider.tag == "Wall")
         {
             /** Cómo actua cuando toca el suelo*/
-            Debug.Log("TOCO Pared");
+            //Debug.Log("TOCO Pared");
         }
     }
 

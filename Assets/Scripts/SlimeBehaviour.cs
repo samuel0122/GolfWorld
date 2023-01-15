@@ -26,9 +26,9 @@ public class SlimeBehaviour : Enemy
 
 
     // Overriding function
-    protected override void Start()
+    protected override void Awake()
     {
-        base.Start();
+        base.Awake();
         _timeRandomWalking = 0f;
 
 
