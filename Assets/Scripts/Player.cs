@@ -89,7 +89,6 @@ public class Player : MonoBehaviour
     // Constantly update the player
     private void Update()
     {
-        Debug.Log("Player speed: " + getSpeed());
 
         // Si se ha terminado, va cayendo hasta que diga next level
         if (_holePassed)
@@ -171,7 +170,7 @@ public class Player : MonoBehaviour
 
             var cameraForward = mainCamera.transform.forward;
             float normalize = Mathf.Abs(cameraForward.x) + Mathf.Abs(cameraForward.z);
-            var forceDirection = new Vector3(cameraForward.x / normalize, 0, cameraForward.z / normalize) * _maxForce;
+            var forceDirection = new Vector3(cameraForward.x / normalize, 0, cameraForward.z / normalize) * _currentForce;
 
             _rigidbody.AddForce(forceDirection, ForceMode.Impulse);
 

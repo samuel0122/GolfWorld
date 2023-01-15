@@ -80,8 +80,8 @@ public abstract class Enemy : MonoBehaviour
         //float playerDmg = player.GetComponent<Rigidbody>().velocity.magnitude;
 
         float playerDmg = p_player.getHitDamage();
-        //Debug.Log("Player speed: " + p_player.GetComponent<Rigidbody>().velocity.magnitude);
-        //Debug.Log("Player dmg: " + playerDmg);
+        Debug.Log("Player speed: " + p_player.GetComponent<Rigidbody>().velocity.magnitude);
+        Debug.Log("Player dmg: " + playerDmg);
 
         if (p_health.takeDamage(playerDmg) == false)
             // Its dead
