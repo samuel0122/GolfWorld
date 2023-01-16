@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
@@ -16,6 +17,11 @@ public class Player : MonoBehaviour
     public Color MinForceColor = Color.green;
     public Color MaxForceColor = Color.red;
 
+    public Material wallTransparencyMaterial;
+    public Material wallOpaqueMaterial;
+
+    private List<Renderer> wallsDetected;
+    private List<Renderer> wallsCurrentlyTransparents;
 
     // Player's objects
     private Rigidbody _rigidbody;
@@ -25,8 +31,8 @@ public class Player : MonoBehaviour
     private float _currentForce;
     private float _pingPongTime;
     
-    private float _maxForce = 1.5f;
-    private float _forceAcceleration = 1.5f;
+    private float _maxForce = 1.8f;
+    private float _forceAcceleration = 1.8f;
 
     private float _maxSpeed = 9f;
     private float _minSpeed = 0.1f;
@@ -42,6 +48,8 @@ public class Player : MonoBehaviour
     // To avoid entering the hold function when holding click on move
     private bool _validClick;
 
+    int suma = 0;
+
     // TODO: refactorizar un poco e implementar función de detener la bola con click derecho
     private void Awake()
     {
@@ -52,6 +60,9 @@ public class Player : MonoBehaviour
 
         _lineRenderer.enabled = false;
         _lineRenderer.useWorldSpace = true;
+
+        wallsDetected = new List<Renderer>();
+        wallsCurrentlyTransparents = new List<Renderer>();
     }
 
 
@@ -89,6 +100,8 @@ public class Player : MonoBehaviour
     // Constantly update the player
     private void Update()
     {
+
+        detectObstacleWalls();
 
         // Si se ha terminado, va cayendo hasta que diga next level
         if (_holePassed)
@@ -211,6 +224,93 @@ public class Player : MonoBehaviour
             //levelManager.NextLevel();
 
         }
+    }
+
+    private void detectObstacleWalls()
+    {
+        wallsDetected.Clear();
+
+        var playerDirection = mainCamera.transform.position - transform.position;
+
+        Ray ray1_Backward = new Ray(transform.position, playerDirection);
+
+        var hits1_Backward = Physics.RaycastAll(ray1_Backward, playerDirection.magnitude);
+
+
+        foreach (var hit in hits1_Backward)
+        {
+            Renderer wallRend = hit.collider.GetComponent<Renderer>();
+            if(!wallsDetected.Contains(wallRend))
+            {
+                wallsDetected.Add(wallRend);
+            }
+        }
+
+        makeWallsSolid();
+        makeWallsTransparent();
+    }
+
+    private void makeWallsTransparent()
+    {
+        if (wallsDetected.Count == 0)
+            return;
+
+        for(int i = 0; i < wallsDetected.Count; i++)
+        {
+            // Mira los muros detectados
+            Renderer wall = wallsDetected[i];
+            // Si el muro detectado no es transparente, lo convierte y lo añade a la lista
+            if (!wallsCurrentlyTransparents.Contains(wall))
+            {
+                wall.sharedMaterial = wallTransparencyMaterial;
+                wallsCurrentlyTransparents.Add(wall);
+            }
+        }
+
+        /*
+        // Mira los muros detectados
+        foreach (var wall in wallsDetected)
+        {
+            // Si el muro detectado no es transparente, lo convierte y lo añade a la lista
+            if (!wallsCurrentlyTransparents.Contains(wall))
+            {
+                wall.sharedMaterial = wallTransparencyMaterial;
+                wallsCurrentlyTransparents.Add(wall);
+            }
+        }
+        */
+    }
+
+    private void makeWallsSolid()
+    {
+        if (wallsCurrentlyTransparents.Count == 0)
+            return;
+
+        for (int i = wallsCurrentlyTransparents.Count-1; i >= 0; --i)
+        {
+            // Mira los muros detectados
+            Renderer wall = wallsCurrentlyTransparents[i];
+
+            // Si el muro detectado no es transparente, lo convierte y lo añade a la lista
+            if (!wallsDetected.Contains(wall))
+            {
+                wall.sharedMaterial = wallOpaqueMaterial;
+                wallsCurrentlyTransparents.Remove(wall);
+            }
+        }
+
+        /*
+        // Mira los muros actualmente transparentes
+        foreach (var wall in wallsCurrentlyTransparents)
+        {
+            // Si el muro ya no es detectado, lo hace opaco y lo quita de la lista
+            if (!wallsDetected.Contains(wall))
+            {
+                wall.sharedMaterial = wallOpaqueMaterial;
+                wallsCurrentlyTransparents.Remove(wall);
+            }
+        }
+        */
     }
 
     private void OnTriggerStay(Collider other)

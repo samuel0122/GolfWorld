@@ -51,6 +51,7 @@ public class SlimeBehaviour : Enemy
     void FixedUpdate()
     {
         vertexArray = OriginalMesh.vertices;
+
         for (int iteration = 0; iteration < jv.Length; iteration++)
         {
             Vector3 target = transform.TransformPoint(vertexArray[jv[iteration].ID]);
@@ -60,6 +61,7 @@ public class SlimeBehaviour : Enemy
             vertexArray[jv[iteration].ID] = Vector3.Lerp(vertexArray[jv[iteration].ID], target, intensity);
 
         }
+
         MeshClone.SetVertices(vertexArray);
     }
 
@@ -168,6 +170,7 @@ public class SlimeBehaviour : Enemy
             Force = (target - Position) * s;
             velocity = (velocity + Force / m) * d;
             Position += velocity;
+
             if ((velocity + Force + Force / m).magnitude < 0.001f)
             {
                 Position = target;
