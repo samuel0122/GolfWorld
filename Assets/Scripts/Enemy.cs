@@ -158,6 +158,16 @@ public abstract class Enemy : MonoBehaviour
     {
         if (p_isDead) return;
 
+        if (collision.collider.tag == "Player")
+        {
+            /** Cómo actua cuando colisiona con el player */
+
+            // Si fue golpeado por el player, recibe el daño sin condiciones
+            if (recieveDamageFromPlayer())
+                gameObject.SetActive(false);
+
+        }
+
     }
 
 }
