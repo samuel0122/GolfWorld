@@ -125,6 +125,8 @@ MonoBehaviour:
   maxHealth: 5
   detectionRange: 3
   _respawnPoint: {x: 0, y: 0, z: 0}
+  explosion: {fileID: 0}
+  beginsize: 0
 --- !u!1 &1094565456539517568
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,6 +636,8 @@ MonoBehaviour:
   maxHealth: 5
   detectionRange: 3
   _respawnPoint: {x: 0, y: 0, z: 0}
+  explosion: {fileID: 0}
+  beginsize: 0
 --- !u!1 &8976179232033356906
 GameObject:
   m_ObjectHideFlags: 0
@@ -644,6 +648,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8636245853170198224}
   - component: {fileID: 8093147363186245943}
+  - component: {fileID: 1439325732755914537}
   m_Layer: 0
   m_Name: WormTest
   m_TagString: Untagged
@@ -687,3 +692,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1439325732755914537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8976179232033356906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58c6f9b140a52a14881ec09eaebb66eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tree: {fileID: 0}

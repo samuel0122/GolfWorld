@@ -27,17 +27,16 @@ public class MovingWorm : ActionNode
     protected override State OnUpdate() {
         Vector3 pos = new Vector3();
 
+        pos.x = posA.transform.position.x;
+        pos.y = posA.transform.position.y;
+        blackboard.moveToPosition = pos;
+
         if (worm.transform.position.x == posA.transform.position.x && worm.transform.position.y == posA.transform.position.y)
         {
-            pos.x = posA.transform.position.x;
-            pos.y = posA.transform.position.y;
+            pos.x = posB.transform.position.x;
+            pos.y = posB.transform.position.y;
             blackboard.moveToPosition = pos;
 
-        } else if (worm.transform.position.x == posB.transform.position.x && worm.transform.position.y == posB.transform.position.y) 
-        {
-            pos.x = posA.transform.position.x;
-            pos.y = posA.transform.position.y;
-            blackboard.moveToPosition = pos;
         }
 
         return State.Success;
