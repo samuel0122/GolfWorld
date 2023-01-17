@@ -4,13 +4,7 @@ using UnityEngine;
 
 public class SlimeBehaviour : Enemy
 {
-    // More variables for slime
-    static float timeUntilExplosion = 0.5f;
-
-    [SerializeField]
-    protected GameObject explosion;
-
-    protected float _counterUntilExplosion;
+    
     protected float _timeRandomWalking;
 
     // Slime Mesh
@@ -66,19 +60,6 @@ public class SlimeBehaviour : Enemy
     }
 
 
-    protected override void behaviourOnDead()
-    {
-        /** Qué ocurre si está muerto */
-
-        _counterUntilExplosion += Time.deltaTime;
-
-        if (_counterUntilExplosion < timeUntilExplosion)
-        {
-            Instantiate(explosion, transform.position, Quaternion.identity);
-            //Destroy(gameObject);
-            gameObject.SetActive(false);
-        }
-    }
 
     protected override void behaviourWhenPlayerVisible()
     {

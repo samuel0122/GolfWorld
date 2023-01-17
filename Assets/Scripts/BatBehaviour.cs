@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BatBehaviour : Enemy
 {
+
+
     public float flyHeight;
 
     float initialPosY = 0f;

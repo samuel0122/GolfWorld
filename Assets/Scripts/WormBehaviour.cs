@@ -6,19 +6,7 @@ using UnityEngine;
 public class WormBehaviour : Enemy
 {
 
-    // More variables for slime
-    static float timeUntilExplosion = 0.5f;
-
-    [SerializeField]
-    protected GameObject explosion;
-
-    protected float _counterUntilExplosion;
     protected float _timeRandomWalking;
-
-    private Mesh OriginalMesh, MeshClone;
-    private new MeshRenderer renderer;
-    private Vector3[] vertexArray;
-    private Vector3 target;
 
     WormHead headWorm;
     WormTail tailWorm;

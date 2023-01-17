@@ -4819,7 +4819,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -1355683539300216079, guid: 86f9616dc7dda9c478fa2159a2b5bb27, type: 3}
+  - {fileID: 6098924145076851180, guid: a8b67ada529b94f43a4da1002651c750, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9690,7 +9690,7 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: -1355683539300216079, guid: 2f879ef0fad142c4d82c09052aaff182, type: 3}
+  - {fileID: 5022229477894036898, guid: 9aafe212441534247aa8be26364d3f4e, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9754,7 +9754,7 @@ GameObject:
   - component: {fileID: 9019016163393424416}
   - component: {fileID: 6672638221779805611}
   m_Layer: 0
-  m_Name: slimeExplosion
+  m_Name: explosionBat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14563,7 +14563,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 192589368500107540, guid: 7825127d08d37184db21b2e582e24c8d, type: 3}
+  - {fileID: 8410196126284028748, guid: a8b67ada529b94f43a4da1002651c750, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -4,11 +4,18 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
+    
 
     // Protected variables to modify
     [SerializeField] protected float maxSpeed = 0.5f;       // Si queremos que esté quieto, dejar a 0
     [SerializeField] protected float maxHealth = 5f;        // Si queremos que al mínimo golpe se muera, dejar a 0
     [SerializeField] protected float detectionRange = 3f;   // Si no queremos que vea al player, dejar a 0
+
+    // Explosion variables for simulating dead
+    protected float timeUntilExplosion = 0.5f;
+    [SerializeField]
+    protected GameObject explosion;
+    protected float _counterUntilExplosion;
 
     // Protected objects
     protected Health p_health;
@@ -121,7 +128,16 @@ public abstract class Enemy : MonoBehaviour
     /** Qué ocurre si está muerto. Si no ocurre nada, dejar la función vacía. */
     protected virtual void behaviourOnDead()
     {
+        /** Qué ocurre si está muerto */
 
+        _counterUntilExplosion += Time.deltaTime;
+
+        if (_counterUntilExplosion < timeUntilExplosion)
+        {
+            Instantiate(explosion, transform.position, Quaternion.identity);
+            //Destroy(gameObject);
+            gameObject.SetActive(false);
+        }
     }
 
     /** Cómo actua cuando se encuentra al player. Si no ocurre nada, dejar la función vacía. */
@@ -164,7 +180,7 @@ public abstract class Enemy : MonoBehaviour
 
             // Si fue golpeado por el player, recibe el daño sin condiciones
             if (recieveDamageFromPlayer())
-                gameObject.SetActive(false);
+                _counterUntilExplosion = 0;
 
         }
 
