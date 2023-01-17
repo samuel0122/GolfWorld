@@ -1,87 +1,91 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WormBehaviour : Enemy
 {
 
-    public float MaxSpeed;
-    private float Speed;
-
-    private Collider[] hitColliders;
-    private RaycastHit Hit;
-
-    private Health _health;
-
-    public float DetectionRange;
-
-    public GameObject Target;
-    private Rigidbody _rigidbody;
-    private BoxCollider _boxCollider;
-    private float _timeRandomWalking;
-
-    private bool dead;
-    private float _timeUntilExplosion;
+    // More variables for slime
+    static float timeUntilExplosion = 0.5f;
 
     [SerializeField]
-    private GameObject explosion;
+    protected GameObject explosion;
 
+    protected float _counterUntilExplosion;
+    protected float _timeRandomWalking;
+
+    private Mesh OriginalMesh, MeshClone;
+    private new MeshRenderer renderer;
+    private Vector3[] vertexArray;
+    private Vector3 target;
+
+    WormHead headWorm = new WormHead();
+    WormTail tailWorm = new WormTail();
+
+    public int beginsize = 2;
 
     // Start is called before the first frame update
-    void Start()
+    // Overriding function
+    protected override void Awake()
     {
         // Obtiene los componentes asignados al objeto
-        _rigidbody = GetComponent<Rigidbody>();
-        _boxCollider = GetComponent<BoxCollider>();
-        _health = GetComponent<Health>();
+        p_rigidbody = GetComponent<Rigidbody>();
+        p_meshCollider = GetComponent<MeshCollider>();
 
-        // Asigna la velocidad de movimiento
-        Speed = MaxSpeed;
+        p_health = new Health(maxHealth);
 
-        dead = false;
 
-        _timeRandomWalking = 0f;
+        p_isDead = false;
 
-        // Evita que rote
-        _rigidbody.freezeRotation = true;
+        p_player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
 
+        if (!_respawnPointIsSet)
+        {
+            Debug.Log("Setting RESPAWN");
+            _respawnPoint = transform.position;
+            _initialRotation = transform.rotation;
+            _respawnPointIsSet = true;
+        }
+        Debug.Log("Starting at " + _respawnPoint);
+
+
+        maxSpeed = 0.8f;
+        maxHealth = 8f;
+        detectionRange = 0f;
+    }
+
+    protected void FixedUpdate()
+    {
+        if(isDead() == true)
+        {
+            behaviourOnDead();
+        }
 
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void behaviourOnDead()
     {
+        /** Qué ocurre si está muerto */
 
-        // Si está muerto, cuenta atrás para explotar
-        if (dead)
+        _counterUntilExplosion += Time.deltaTime;
+
+        if (_counterUntilExplosion < timeUntilExplosion)
         {
-            _timeUntilExplosion -= Time.deltaTime;
-
-            if (_timeUntilExplosion < 0f)
-            {
-                Instantiate(explosion, transform.position, Quaternion.identity);
-                Destroy(gameObject);
-            }
-            return;
+            Instantiate(explosion, transform.position, Quaternion.identity);
+            //Destroy(gameObject);
+            gameObject.SetActive(false);
         }
-        // En caso de no estar muerto sigue su recorrido predefinido
-        else
+    }
+
+    protected override void OnCollisionEnter(Collision collision)
+    {
+        if (p_isDead) return;
+
+        if (collision.collider.tag == "Player")
         {
-            // Cuenta cuanto tiempo lleva caminando en una dirección aleatoria
-            _timeRandomWalking -= Time.deltaTime;
-
-            // Si termina el contador, cambia de dirección
-            if (_timeRandomWalking < 0f)
-            {
-                float speedX = Random.Range(0.2f, 0.35f) * Random.Range(0, 2) * 2 - 1;
-                float speedZ = Random.Range(0.2f, 0.35f) * Random.Range(0, 2) * 2 - 1;
-
-                _rigidbody.velocity = new Vector3(speedX, _rigidbody.velocity.y, speedZ);
-
-                _timeRandomWalking = 3f;
-            }
+            headWorm.CollisionWithObjects(collision);
+            tailWorm.CollisionWithObjects(collision);
         }
-
-
     }
 }

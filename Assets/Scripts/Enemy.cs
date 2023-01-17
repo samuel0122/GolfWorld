@@ -24,9 +24,9 @@ public abstract class Enemy : MonoBehaviour
     protected float p_playerDistance;
 
     // Private "backup" variables
-    [SerializeField]  private Vector3 _respawnPoint;
-    private bool _respawnPointIsSet = false;
-    private Quaternion _initialRotation;
+    [SerializeField]  protected Vector3 _respawnPoint;
+    protected bool _respawnPointIsSet = false;
+    protected Quaternion _initialRotation;
 
     protected float maxDrop;
 
@@ -136,7 +136,7 @@ public abstract class Enemy : MonoBehaviour
     }
 
 
-    private void Update()
+    protected virtual void Update()
     {
         /** Si el enemigo se ha caído, se muere. */
         if (transform.position.y < maxDrop)
