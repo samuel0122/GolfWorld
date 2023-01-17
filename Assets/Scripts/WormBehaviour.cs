@@ -20,8 +20,8 @@ public class WormBehaviour : Enemy
     private Vector3[] vertexArray;
     private Vector3 target;
 
-    WormHead headWorm = new WormHead();
-    WormTail tailWorm = new WormTail();
+    WormHead headWorm;
+    WormTail tailWorm;
 
     public int beginsize = 2;
 
@@ -29,6 +29,9 @@ public class WormBehaviour : Enemy
     // Overriding function
     protected override void Awake()
     {
+        headWorm = new WormHead();
+        tailWorm = new WormTail();
+
         // Obtiene los componentes asignados al objeto
         p_rigidbody = GetComponent<Rigidbody>();
         p_meshCollider = GetComponent<MeshCollider>();

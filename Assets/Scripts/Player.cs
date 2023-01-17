@@ -239,6 +239,9 @@ public class Player : MonoBehaviour
 
         foreach (var hit in hits1_Backward)
         {
+            if (hit.collider.tag != "Wall")
+                continue;
+
             Renderer wallRend = hit.collider.GetComponent<Renderer>();
             if(!wallsDetected.Contains(wallRend))
             {

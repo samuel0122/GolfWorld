@@ -11,7 +11,7 @@ public class MovingWorm : ActionNode
     
     [SerializeField] GameObject posA;
     [SerializeField] GameObject posB;
-    [SerielizeField] GameObject worm;
+    [SerializeField] GameObject worm;
 
     protected override void OnStart() {
 
