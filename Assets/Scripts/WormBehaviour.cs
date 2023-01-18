@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class WormBehaviour : Enemy
 {
@@ -10,6 +11,9 @@ public class WormBehaviour : Enemy
 
     WormHead headWorm;
     WormTail tailWorm;
+
+    [SerializeField]
+    NavMeshAgent agent;
 
     public int beginsize = 2;
 
@@ -52,7 +56,6 @@ public class WormBehaviour : Enemy
         {
             behaviourOnDead();
         }
-
     }
 
     protected override void behaviourOnDead()
@@ -67,6 +70,13 @@ public class WormBehaviour : Enemy
             //Destroy(gameObject);
             gameObject.SetActive(false);
         }
+    }
+
+    protected override void behaviourWhenPlayerNotVisible()
+    {
+
+        agent.SetDestination(new Vector3(1, 2, 3));
+        
     }
 
     protected override void OnCollisionEnter(Collision collision)

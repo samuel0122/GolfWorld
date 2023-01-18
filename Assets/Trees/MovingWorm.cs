@@ -15,7 +15,7 @@ public class MovingWorm : ActionNode
 
     protected override void OnStart() {
 
-        posA = GameObject.FindGameObjectWithTag("PosAWorm1");
+        posA = GameObject.FindGameObjectWithTag("posAWorm1");
         posB = GameObject.FindGameObjectWithTag("PosBWorm1");
 
         worm = GameObject.FindGameObjectWithTag("Worm1");
