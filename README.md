@@ -3,7 +3,7 @@
 
 ### 1. Instalar Visual Studio 2019:
   - [ ] Instalar Visual Studio (Community) 2019 con los siguientes paquetes:
-    - [ ] Cargas de trabajo -> Dsarrollo de juego con Unity
+    - [ ] Cargas de trabajo -> Desarrollo de juego con Unity
     - [ ] Componentes individuales -> Extensión de GitHub para VS y GIT para Windows
 
 
@@ -41,3 +41,6 @@
   - [ ] Ya tenemos el proyecto local enlazado al remoto. Podéis probarlo añadiendo un comentario, haciendo commit, pull y push al remoto (**__SIEMPRE__ hacer pull antes de un push y resolver conflictos si se dan**).
   - [ ] Para abrir el proyecto en VS tenéis que volver a abrirlo desde Assets -> Open C# Project en Unity. Si todo fue bien, VS os ayudará escribiendo código enseñando sugerencias.
   - [ ] Unity va por escenas. Para abrir una escena y poder editarla abrir la carpeta Scenes y doble click sobre una escena.
+  - [ ] **__EVITAR SALTOS DE LA PELOTA:__** Edit -> Project Settings...:
+    - [ ] Physics -> Default Contact Offset: 0.000001
+    - [ ] Time -> Fixed Timestep: 0.015
