@@ -20,10 +20,11 @@ MonoBehaviour:
   - rid: 6516094433050755073
   - rid: 6516094433050755074
   - rid: 6516094433050755075
+  - rid: 6516094459916320768
   treeState: 0
   blackboard:
     moveToPosition: {x: 0, y: 0, z: 0}
-  viewPosition: {x: 222, y: 47, z: 0}
+  viewPosition: {x: 277, y: 8, z: 0}
   viewScale: {x: 0.7561437, y: 0.7561437, z: 1}
   references:
     version: 2
@@ -47,12 +48,14 @@ MonoBehaviour:
         state: 0
         started: 0
         guid: ad42efd8e18bfae42a8135cde827002d
-        position: {x: -186.9675, y: 396.51}
+        position: {x: -0.000015258789, y: 397.00003}
         blackboard:
           moveToPosition: {x: 0, y: 0, z: 0}
         description: 
         drawGizmos: 0
         posA: {fileID: 0}
+        posB: {fileID: 0}
+        worm: {fileID: 0}
     - rid: 6516094433050755073
       type: {class: Repeat, ns: TheKiwiCoder, asm: Assembly-CSharp}
       data:
@@ -80,6 +83,7 @@ MonoBehaviour:
         description: 
         drawGizmos: 0
         children:
+        - rid: 6516094459916320768
         - rid: 6516094433050755072
         - rid: 6516094433050755075
     - rid: 6516094433050755075
@@ -88,7 +92,7 @@ MonoBehaviour:
         state: 0
         started: 0
         guid: d60c21c53dbe5c242beca74b610c53b3
-        position: {x: 150, y: 397.00003}
+        position: {x: 210.7175, y: 397.00003}
         blackboard:
           moveToPosition: {x: 0, y: 0, z: 0}
         description: 
@@ -98,3 +102,15 @@ MonoBehaviour:
         updateRotation: 1
         acceleration: 40
         tolerance: 1
+    - rid: 6516094459916320768
+      type: {class: Wait, ns: TheKiwiCoder, asm: Assembly-CSharp}
+      data:
+        state: 0
+        started: 0
+        guid: f6c43821848218842bd7c67c760f5920
+        position: {x: -205.0651, y: 397.00003}
+        blackboard:
+          moveToPosition: {x: 0, y: 0, z: 0}
+        description: 
+        drawGizmos: 0
+        duration: 1
