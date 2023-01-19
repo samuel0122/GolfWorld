@@ -8,11 +8,16 @@ public class BatBehaviour : Enemy
 
     public float flyHeight;
 
-    float initialPosY = 0f;
+    private float initialPosY;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        initialPosY = transform.position.y;
+    }
 
     protected override void behaviourWhenPlayerNotVisible()
     {
-        if (initialPosY == 0) initialPosY = transform.position.y;
 
 
         float newY = Mathf.Sin(Time.time * maxSpeed) * flyHeight + initialPosY;

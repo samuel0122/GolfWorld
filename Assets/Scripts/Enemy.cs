@@ -94,6 +94,8 @@ public abstract class Enemy : MonoBehaviour
             // Its dead
             p_isDead = true;
 
+        Debug.Log("Player dmg: " + playerDmg + " Is now deaD: " + p_isDead);
+
         return p_isDead;
     }
 
@@ -106,7 +108,7 @@ public abstract class Enemy : MonoBehaviour
     /// <para> Updates playerDistance and playerDirection variables from Enemy class. </para>
     /// </summary>
     /// <returns>True if the player is directly visible.</returns>
-    private bool isPlayerVisible()
+    protected bool isPlayerVisible()
     { 
         RaycastHit playerHit;
         
@@ -132,8 +134,11 @@ public abstract class Enemy : MonoBehaviour
 
         _counterUntilExplosion += Time.deltaTime;
 
+            Debug.Log("Count down to explosion: " + _counterUntilExplosion);
         if (_counterUntilExplosion < timeUntilExplosion)
         {
+            Debug.Log("EXPLOSION!");
+
             Instantiate(explosion, transform.position, Quaternion.identity);
             //Destroy(gameObject);
             gameObject.SetActive(false);
@@ -162,6 +167,7 @@ public abstract class Enemy : MonoBehaviour
             gameObject.SetActive(false);
         }
 
+        
         /** Si el enemigo sigue en la pista, llama a una función de actuación. */
         if (p_isDead) behaviourOnDead();
         else if (isPlayerVisible()) behaviourWhenPlayerVisible();

@@ -117,9 +117,7 @@ public class Player : MonoBehaviour
         // Looks if the player is out of the track (its going down)
         if (_rigidbody.position.y < _lowestY)
         {
-            SpawnTo(currentLevelCoord);
-            _rigidbody.velocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;
+            killPlayer();
             return;
         }
 
@@ -146,6 +144,14 @@ public class Player : MonoBehaviour
         ProcessLeftClickOff();
         ProcessLeftClickHold();
     }
+
+    private void killPlayer()
+    {
+        SpawnTo(currentLevelCoord);
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+    }
+
 
     private void ProcessRightClick()
     {
@@ -224,6 +230,7 @@ public class Player : MonoBehaviour
             //levelManager.NextLevel();
 
         }
+        
     }
 
     private void detectObstacleWalls()
@@ -326,7 +333,7 @@ public class Player : MonoBehaviour
             {
                 levelManager.NextLevel();
             }
-        }
+        } 
     }
 
     protected void OnCollisionEnter(Collision collision)
@@ -351,6 +358,10 @@ public class Player : MonoBehaviour
         if (other.CompareTag("Hole"))
         {
             _timeAfterHole = 0;
+        }
+        else if (other.CompareTag("Weapon"))
+        {
+            killPlayer();
         }
     }
 }
