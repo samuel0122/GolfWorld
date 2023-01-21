@@ -25,7 +25,7 @@ public class SlimeBehaviour : Enemy
         base.Awake();
         _timeRandomWalking = 0f;
 
-
+        Debug.Log("AWAKING");
 
         // Evita que rote (buscar alternativa para permitir que rote de izquierda a derecha)
         //_rigidbody.freezeRotation = true;

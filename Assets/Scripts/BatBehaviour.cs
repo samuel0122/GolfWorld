@@ -16,9 +16,8 @@ public class BatBehaviour : Enemy
         initialPosY = transform.position.y;
     }
 
-    protected override void behaviourWhenPlayerNotVisible()
+    private void goUpDown()
     {
-
 
         float newY = Mathf.Sin(Time.time * maxSpeed) * flyHeight + initialPosY;
 
@@ -26,6 +25,21 @@ public class BatBehaviour : Enemy
         //calculate what the new Y position will be
         //set the object's Y to the new calculated Y
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+    }
+    
+    
+    protected override void behaviourWhenPlayerVisible()
+    {
+        transform.LookAt(p_player.transform.position);
+        transform.Rotate(0, 90, 0);
+
+        goUpDown();
+    }
+
+    protected override void behaviourWhenPlayerNotVisible()
+    {
+
+        goUpDown();
 
     }
 

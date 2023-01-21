@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(LineRenderer))]
@@ -10,7 +11,10 @@ public class Player : MonoBehaviour
 {
     // Public variables
     public Camera mainCamera;
-    public LevelManager levelManager;
+    // public LevelManager levelManager;
+    public Level levelController;
+
+    public PauseMenu pauseMenu;
 
     public float maxDamage= 5f;
 
@@ -70,13 +74,13 @@ public class Player : MonoBehaviour
     {
         point.y += 0.5f;
         currentLevelCoord = point;
-        currentFlagCoord = levelManager.getFlagPosition();
+        currentFlagCoord = levelController.getFlagPosition();
         _lineRenderer.enabled = false;
 
         _rigidbody.MovePosition(point);
 
         // Sets the lowest Y the player can go
-        _lowestY = levelManager.getMaxDrop();
+        _lowestY = levelController.getMaxDrop();
 
         _holePassed = false;
     }
@@ -104,6 +108,7 @@ public class Player : MonoBehaviour
         detectObstacleWalls();
 
         // Si se ha terminado, va cayendo hasta que diga next level
+        /*
         if (_holePassed)
         {
             _timeAfterHole += Time.deltaTime;
@@ -112,7 +117,7 @@ public class Player : MonoBehaviour
             
             return;
         }
-
+        */
 
         // Looks if the player is out of the track (its going down)
         if (_rigidbody.position.y < _lowestY)
@@ -126,7 +131,7 @@ public class Player : MonoBehaviour
         if (flagDistance < 1f)
         {
             //Move flag
-            levelManager.elevateFlagTo((1f - flagDistance) / 2);
+            levelController.elevateFlagTo((1f - flagDistance) / 2);
         }
 
         // Check if player is moving
@@ -147,15 +152,16 @@ public class Player : MonoBehaviour
 
     private void killPlayer()
     {
-        SpawnTo(currentLevelCoord);
-        _rigidbody.velocity = Vector3.zero;
-        _rigidbody.angularVelocity = Vector3.zero;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //SpawnTo(currentLevelCoord);
+        //_rigidbody.velocity = Vector3.zero;
+        //_rigidbody.angularVelocity = Vector3.zero;
     }
 
 
     private void ProcessRightClick()
     {
-        if (Input.GetMouseButtonDown(1) && !levelManager.getCurrentLevel().areEnemiesDead())
+        if (Input.GetMouseButtonDown(1) && !levelController.areEnemiesDead())
         {
             _rigidbody.velocity = Vector3.zero;
             _rigidbody.angularVelocity = Vector3.zero;
@@ -199,6 +205,12 @@ public class Player : MonoBehaviour
     // Function while holding down mouse click
     private void ProcessLeftClickHold()
     {
+        if (Input.GetMouseButtonDown(1)) {
+            _lineRenderer.enabled = false;
+            _validClick = false;
+            return;
+        }
+
         if (Input.GetMouseButton(0) && _validClick)
         {
             _pingPongTime += Time.deltaTime;
@@ -331,7 +343,7 @@ public class Player : MonoBehaviour
 
             if (_timeAfterHole > 1.5f)
             {
-                levelManager.NextLevel();
+                // levelManager.NextLevel();
             }
         } 
     }

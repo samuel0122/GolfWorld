@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class RobotBehaviour : Enemy
 {
-    // Start is called before the first frame update
+    private GameObject head;
+
 
 }
