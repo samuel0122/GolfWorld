@@ -14,7 +14,6 @@ public class Player : MonoBehaviour
     // public LevelManager levelManager;
     public Level levelController;
 
-    public PauseMenu pauseMenu;
 
     public float maxDamage= 5f;
 
@@ -45,8 +44,9 @@ public class Player : MonoBehaviour
     private float _timeAfterHole;
     private bool _holePassed;
     private float _lowestY;
+    private int numberOfHits;
 
-    private Vector3 currentLevelCoord;
+    private Vector3 lastPositionCoord;
     private Vector3 currentFlagCoord;
 
     // To avoid entering the hold function when holding click on move
@@ -57,6 +57,7 @@ public class Player : MonoBehaviour
     // TODO: refactorizar un poco e implementar función de detener la bola con click derecho
     private void Awake()
     {
+        numberOfHits = 0;
         Cursor.lockState = CursorLockMode.Locked;
 
         _rigidbody = GetComponent<Rigidbody>();
@@ -67,13 +68,17 @@ public class Player : MonoBehaviour
 
         wallsDetected = new List<Renderer>();
         wallsCurrentlyTransparents = new List<Renderer>();
+
+        // currentFlagCoord = levelController.getFlagPosition();
+        _validClick = true;
+
     }
 
 
     public void SpawnTo(Vector3 point)
     {
+        lastPositionCoord = point;
         point.y += 0.5f;
-        currentLevelCoord = point;
         currentFlagCoord = levelController.getFlagPosition();
         _lineRenderer.enabled = false;
 
@@ -99,6 +104,11 @@ public class Player : MonoBehaviour
     public float getHitDamage()
     {
         return (getSpeed() * 1.5f >= _maxSpeed) ? maxDamage : (((getSpeed() * 1.5f) / _maxSpeed) * maxDamage);
+    }
+
+    public bool isMoving()
+    {
+        return (getSpeed() >= _minSpeed);
     }
 
     // Constantly update the player
@@ -135,15 +145,19 @@ public class Player : MonoBehaviour
         }
 
         // Check if player is moving
-        if (getSpeed() >= _minSpeed)
+        if (isMoving())
         {
             ProcessRightClick();
             return;
         }
         
+
         // If speed is below min, turn it Z and press mouse
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
+
+        // Save last position
+        lastPositionCoord = transform.position;
 
         ProcessLeftClickDown();
         ProcessLeftClickOff();
@@ -152,13 +166,13 @@ public class Player : MonoBehaviour
 
     private void killPlayer()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        //SpawnTo(currentLevelCoord);
-        //_rigidbody.velocity = Vector3.zero;
-        //_rigidbody.angularVelocity = Vector3.zero;
+        //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SpawnTo(lastPositionCoord);
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
     }
 
-
+    public int getNumberOfHits() { return numberOfHits;  }
     private void ProcessRightClick()
     {
         if (Input.GetMouseButtonDown(1) && !levelController.areEnemiesDead())
@@ -198,6 +212,7 @@ public class Player : MonoBehaviour
             var forceDirection = new Vector3(cameraForward.x / normalize, 0, cameraForward.z / normalize) * _currentForce;
 
             _rigidbody.AddForce(forceDirection, ForceMode.Impulse);
+            numberOfHits++;
 
         }
     }

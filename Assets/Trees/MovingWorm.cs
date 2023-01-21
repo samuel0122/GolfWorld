@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TheKiwiCoder;
-using static UnityEditor.PlayerSettings;
+// using static UnityEditor.PlayerSettings;
 using Unity.VisualScripting;
 
 [System.Serializable]

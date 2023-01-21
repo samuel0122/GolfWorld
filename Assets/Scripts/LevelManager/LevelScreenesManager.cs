@@ -22,6 +22,8 @@ public class LevelScreenesManager : MonoBehaviour {
     public List<LevelBut> LevelButtonsList;
     
     private int levelReached;
+    
+    private static int numberOfLevels;
 
     // Use this for initialization
     void Start ()
@@ -36,7 +38,11 @@ public class LevelScreenesManager : MonoBehaviour {
         PlayerPrefs.SetInt("levelReached", levelReached);
 
         Debug.Log("Level reached: " + levelReached);
+        
+        numberOfLevels = LevelButtonsList.Count;
     }
+
+    public static int GetNumberOfLevels() { return numberOfLevels;  }
 
     void FillList()
     {
@@ -58,7 +64,12 @@ public class LevelScreenesManager : MonoBehaviour {
                 // LEVELS UNLOCKED
                 button.levelName = "Level" + iteration.ToString();
                 button.GetComponent<Button>().interactable = true;
-                button.GetComponent<Button>().onClick.AddListener(() => loadingManager.LoadLevel(button.levelName));
+                string message;// = button.levelName;
+
+                if(iteration % 2 == 0) message = "Level" + iteration.ToString() + "\nTHIS LEVEL HAS TIME LIMIT TO COMPLETE.";
+                else message = "Level" + iteration.ToString() + "\nTHIS LEVEL HAS HIT LIMIT TO COMPLETE.";
+                
+                button.GetComponent<Button>().onClick.AddListener(() => loadingManager.LoadLevel(button.levelName, message));
 
             }
             else

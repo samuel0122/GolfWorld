@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+
+    /** 
+     * NOT USED
+     * NOT USED
+     */
     public Level[] levels;
 
     private Player _player;

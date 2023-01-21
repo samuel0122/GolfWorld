@@ -192,10 +192,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c14d82e7b341794c9b98971d33480ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LoadingManager: {fileID: 0}
   pauseMenuUI: {fileID: 9017770816605924070}
-  mainGame: {fileID: 0}
-  loadingScreen: {fileID: 0}
-  progressSlider: {fileID: 0}
 --- !u!1 &1020604516389466774
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,17 +7,17 @@ public class GOAL : MonoBehaviour {
 
     //public GameObject level_complete;
 
-    public int unlock;
-    int LevelAmount = 50;
     private int currentLevel;
+    private int LevelAmount = 50;
+
+    public Level LevelController;
 
     void Start ()
     {
         Time.timeScale = 1;
-        unlock = SceneManager.GetActiveScene().buildIndex + 1;
+        currentLevel = SceneManager.GetActiveScene().buildIndex;
 
         //level_complete.SetActive(false);
-        Debug.Log("STARTING LEVEL @@@");
 
 
     }
@@ -28,10 +28,10 @@ public class GOAL : MonoBehaviour {
         {
             Debug.Log("###PLAYER REACTED");
             
-            PlayerPrefs.SetInt("levelReached", unlock);
             //level_complete.SetActive(true);
 
-            CheckLevel();
+            LevelController.levelGoalReached(currentLevel);
+            //CheckLevel();
         }
     }
 
@@ -52,7 +52,6 @@ public class GOAL : MonoBehaviour {
         int NextLevel = currentLevel + 1;
         if (NextLevel <= LevelAmount)
         {
-            Debug.Log("Save Level" + NextLevel.ToString());
             PlayerPrefs.SetInt("Level" + NextLevel.ToString(), 1);
         }
 

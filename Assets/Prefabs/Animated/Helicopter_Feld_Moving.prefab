@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 2011501745157037861}
   - component: {fileID: 5758924975536595541}
   - component: {fileID: 348392192420420128}
+  - component: {fileID: 1043453168514516297}
   m_Layer: 0
   m_Name: Helicopter
   m_TagString: Wall
@@ -181,6 +182,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1043453168514516297
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5083287832895907948}
+  m_Material: {fileID: 13400000, guid: 8c13706ea8855bc46b0707b2306fdfb3, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 6621724863880588778, guid: 37d211ad1a4acec45900100a4da617a8, type: 3}
 --- !u!1 &8595994474936673004
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour {
     // Exit button
     public void Exit() {
+        PlayerPrefs.DeleteAll();
+
         Application.Quit();
     }
 

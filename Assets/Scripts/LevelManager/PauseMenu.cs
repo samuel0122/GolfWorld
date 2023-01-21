@@ -67,7 +67,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1;
         GameIsPause = false;
 
-        LoadingManager.LoadLevel(currentLevel);
+        LoadingManager.LoadLevel(currentLevel, "RESTARTING LEVEL");
         //SceneManager.LoadScene(currentLevel);
         // StartCoroutine(LoadSceneAsync(currentLevel));
         //StartCoroutine(Reload(currentLevel));
@@ -81,7 +81,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1;
         GameIsPause = false;
 
-        LoadingManager.LoadLevel(0);
+        LoadingManager.LoadLevel(0, "GOING BACK TO MAIN MENU");
 
 
         //mainGame.SetActive(false);
